@@ -1,0 +1,229 @@
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Woodcutter Game</title>
+  <script src="https://cdn.jsdelivr.net/npm/brython@3/brython.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/brython@3/brython_stdlib.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #87ceeb, #dff7c6);
+    }
+    #game {
+      display: block;
+      margin: 0 auto;
+      background: linear-gradient(to bottom, #bde5ff, #dff7c6);
+      border: 4px solid #2e7d32;
+    }
+    .hud {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      background: rgba(255,255,255,0.85);
+      padding: 10px 14px;
+      border-radius: 12px;
+      color: #1b5e20;
+      font-size: 18px;
+      line-height: 1.5;
+      min-width: 200px;
+    }
+    .story {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(900px, 92vw);
+      background: rgba(0,0,0,0.65);
+      color: white;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 22px;
+      text-align: center;
+    }
+    .hint {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255,255,255,0.85);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      color: #2e7d32;
+      text-align: left;
+    }
+  </style>
+</head>
+<body onload="brython()">
+  <canvas id="game" width="1000" height="600"></canvas>
+  <div class="hud" id="hud"></div>
+  
+  <div class="story" id="story">Welcome! Move to trees, cut wood, and sell it at the market.</div>
+
+  <script type="text/python">
+from browser import document, timer
+import random
+import math
+
+canvas = document["game"]
+ctx = canvas.getContext("2d")
+hud = document["hud"]
+story = document["story"]
+
+player = {"x": 120, "y": 430, "w": 30, "h": 40, "wood": 0, "money": 0, "speed": 3.2}
+market = {"x": 820, "y": 390, "w": 120, "h": 90}
+keys = {}
+cut_cooldown = 0
+
+trees = [
+    {"x": 180, "y": 140, "hp": 3, "alive": True},
+    {"x": 330, "y": 120, "hp": 3, "alive": True},
+    {"x": 500, "y": 160, "hp": 4, "alive": True},
+    {"x": 650, "y": 130, "hp": 4, "alive": True},
+    {"x": 250, "y": 280, "hp": 3, "alive": True},
+    {"x": 430, "y": 290, "hp": 4, "alive": True},
+    {"x": 590, "y": 260, "hp": 3, "alive": True}
+]
+
+def rect_hit(a, b):
+    return a["x"] < b["x"] + b["w"] and a["x"] + a["w"] > b["x"] and a["y"] < b["y"] + b["h"] and a["y"] + a["h"] > b["y"]
+
+def draw_tree(t):
+    if not t["alive"]:
+        return
+    ctx.fillStyle = "#795548"
+    ctx.fillRect(t["x"] + 18, t["y"] + 40, 14, 60)
+    ctx.fillStyle = "#2e7d32"
+    ctx.beginPath()
+    ctx.arc(t["x"] + 25, t["y"] + 34, 30, 0, math.pi * 2)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.arc(t["x"] + 8, t["y"] + 42, 16, 0, math.pi * 2)
+    ctx.fill()
+    ctx.beginPath()
+    ctx.arc(t["x"] + 42, t["y"] + 42, 16, 0, math.pi * 2)
+    ctx.fill()
+
+def draw_player():
+    ctx.fillStyle = "#ffccbc"
+    ctx.beginPath()
+    ctx.arc(player["x"] + 15, player["y"] + 10, 12, 0, math.pi * 2)
+    ctx.fill()
+    ctx.fillStyle = "#ff7043"
+    ctx.fillRect(player["x"], player["y"] + 18, 30, 22)
+    ctx.fillStyle = "#1565c0"
+    ctx.fillRect(player["x"] + 2, player["y"] + 40, 10, 18)
+    ctx.fillRect(player["x"] + 18, player["y"] + 40, 10, 18)
+    ctx.fillStyle = "#b0bec5"
+    ctx.fillRect(player["x"] + 24, player["y"] + 12, 20, 4)
+
+def draw_market():
+    ctx.fillStyle = "#a1887f"
+    ctx.fillRect(market["x"], market["y"], market["w"], market["h"])
+    ctx.fillStyle = "#6d4c41"
+    ctx.fillRect(market["x"], market["y"], market["w"], 18)
+    ctx.fillStyle = "white"
+    ctx.font = "16px Arial"
+    ctx.fillText("MARKET", market["x"] + 26, market["y"] + 38)
+
+def cut_tree():
+    global cut_cooldown
+    if cut_cooldown > 0:
+        return
+    cut = False
+    for t in trees:
+        if not t["alive"]:
+            continue
+        dx = abs((player["x"] + player["w"]/2) - (t["x"] + 25))
+        dy = abs((player["y"] + player["h"]/2) - (t["y"] + 50))
+        if dx < 70 and dy < 90:
+            t["hp"] -= 1
+            cut = True
+            if t["hp"] <= 0:
+                t["alive"] = False
+                gain = random.randint(3, 5)
+                player["wood"] += gain
+                story.text = "You cut the tree and got {} wood!".format(gain)
+            else:
+                story.text = "Chop! The tree is weakening..."
+            break
+    if not cut:
+        story.text = "Move close to a tree first."
+    cut_cooldown = 18
+
+def sell_wood():
+    if rect_hit(player, market) and player["wood"] > 0:
+        earned = player["wood"] * 5
+        player["money"] += earned
+        player["wood"] = 0
+        story.text = "You sold wood and earned ${}!".format(earned)
+
+def update_hud():
+    hud.innerHTML = "Wood: <b>{}</b><br>Money: <b>${}</b>".format(player["wood"], player["money"])
+
+def draw_scene():
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    sky = ctx.createLinearGradient(0, 0, 0, 500)
+    sky.addColorStop(0, "#87ceeb")
+    sky.addColorStop(1, "#e8f5e9")
+    ctx.fillStyle = sky
+    ctx.fillRect(0, 0, canvas.width, 500)
+
+    ctx.fillStyle = "#4caf50"
+    ctx.fillRect(0, 520, canvas.width, 80)
+
+    ctx.fillStyle = "#8d6e63"
+    ctx.fillRect(0, 560, canvas.width, 40)
+
+    ctx.fillStyle = "#fff59d"
+    ctx.beginPath()
+    ctx.arc(100, 90, 38, 0, math.pi * 2)
+    ctx.fill()
+
+    for t in trees:
+        draw_tree(t)
+
+    draw_market()
+    draw_player()
+    update_hud()
+
+def game_loop():
+    global cut_cooldown
+
+    if keys.get("ArrowLeft") or keys.get("a"):
+        player["x"] -= player["speed"]
+    if keys.get("ArrowRight") or keys.get("d"):
+        player["x"] += player["speed"]
+    if keys.get("ArrowUp") or keys.get("w"):
+        player["y"] -= player["speed"]
+    if keys.get("ArrowDown") or keys.get("s"):
+        player["y"] += player["speed"]
+
+    player["x"] = max(0, min(canvas.width - player["w"], player["x"]))
+    player["y"] = max(0, min(canvas.height - player["h"], player["y"]))
+
+    if cut_cooldown > 0:
+        cut_cooldown -= 1
+
+    if keys.get(" "):
+        cut_tree()
+
+    sell_wood()
+    draw_scene()
+
+def key_down(ev):
+    keys[ev.key] = True
+
+def key_up(ev):
+    keys[ev.key] = False
+
+document.bind("keydown", key_down)
+document.bind("keyup", key_up)
+timer.set_interval(game_loop, 30)
+  </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+    <!DOCTYPE html>
+<html>
+<head>
+    <title>Snake Game - Python in Browser</title>
+    <script type="text/javascript" src="https://unpkg.com/brython@3.11.0/brython.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/brython@3.11.0/brython_stdlib.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #2c3e50;
+            color: rgba(240, 165, 165, 0.919);
+            margin: 0;
+            padding: 20px;
+        }
+        canvas {
+            border: 3px solid #27ae60;
+            background-color: #8fc2f4;
+            display: block;
+            margin: 20px auto;
+        }
+        h1 { margin: 10px 0; }
+        p { margin: 5px 0; }
+    </style>
+</head>
+<body onload="brython()">
+
+<h1>🐍 Snake Game (Python)</h1>
+<p>Use Arrow Keys to move</p>
+<p>Score: <span id="score">0</span></p>
+<canvas id="gameCanvas" width="850" height="450"></canvas>
+
+<script type="text/python">
+from browser import document, window, timer
+import random
+
+# Game settings
+CANVAS_WIDTH = 850
+CANVAS_HEIGHT = 450
+GRID_SIZE = 20
+SPEED = 100  # milliseconds
+
+# Initialize canvas
+canvas = document["gameCanvas"]
+ctx = canvas.getContext("2d")
+
+# Game state
+snake = [(10, 10), (9, 10), (8, 10)]
+direction = (1, 0)  # Moving right
+food = None
+score = 0
+game_over = False
+
+def create_food():
+    while True:
+        x = random.randint(0, CANVAS_WIDTH // GRID_SIZE - 1)
+        y = random.randint(0, CANVAS_HEIGHT // GRID_SIZE - 1)
+        if (x, y) not in snake:
+            return (x, y)
+
+food = create_food()
+
+def draw():
+    global game_over
+    
+    ctx.fillStyle = "#34495e"
+    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+    
+    for i, (x, y) in enumerate(snake):
+        if i == 0:
+            ctx.fillStyle = "#27ae60"
+        else:
+            ctx.fillStyle = "#2ecc71"
+        ctx.fillRect(x * GRID_SIZE, y * GRID_SIZE, GRID_SIZE - 2, GRID_SIZE - 2)
+    
+    ctx.fillStyle = "#e74c3c"
+    ctx.fillRect(food[0] * GRID_SIZE, food[1] * GRID_SIZE, GRID_SIZE - 2, GRID_SIZE - 2)
+    
+    document["score"].text = str(score)
+    
+    head_x, head_y = snake[0]
+    if (head_x < 0 or head_x >= CANVAS_WIDTH // GRID_SIZE or 
+        head_y < 0 or head_y >= CANVAS_HEIGHT // GRID_SIZE or
+        snake[0] in snake[1:]):
+        game_over = True
+        ctx.fillStyle = "white"
+        ctx.font = "30px Arial"
+        ctx.textAlign = "center"
+        ctx.fillText("Game Over!", CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2)
+        ctx.font = "16px Arial"
+        ctx.fillText("Press F5 to restart", CANVAS_WIDTH // 2, CANVAS_HEIGHT // 2 + 30)
+
+def update():
+    global snake, food, score, game_over
+    
+    if game_over:
+        return
+    
+    head_x, head_y = snake[0]
+    new_head = (head_x + direction[0], head_y + direction[1])
+    
+    snake.insert(0, new_head)
+    
+    if new_head == food:
+        score += 10
+        food = create_food()
+    else:
+        snake.pop()
+    
+    draw()
+
+def key_down(event):
+    global direction, game_over
+    
+    if event.key == "ArrowUp" and direction != (0, 1):
+        direction = (0, -1)
+    elif event.key == "ArrowDown" and direction != (0, -1):
+        direction = (0, 1)
+    elif event.key == "ArrowLeft" and direction != (1, 0):
+        direction = (-1, 0)
+    elif event.key == "ArrowRight" and direction != (-1, 0):
+        direction = (1, 0)
+
+document.bind("keydown", key_down)
+timer.set_interval(update, SPEED)
+draw()
+</script>
+
+</body>
+</html>

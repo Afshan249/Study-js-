@@ -1,0 +1,37 @@
+   <!DOCTYPE html>
+   <html lang="en">
+   <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Train Run</title>
+   </head>
+   <style>
+        .road{
+            background-color: rgba(241, 230, 230, 0.289);
+           
+        }
+        #train{
+            position:relative;
+            cursor: pointer;
+        }
+
+   </style>
+   <body>
+        <div class="road">
+           <img id="train" src="https://js.cx/clipart/train.gif">
+        </div>
+        <script>
+           train.onclick= function (){
+               let start = Date.now()
+               let timer = setInterval(function(){
+                   let timePassed = Date.now() - start
+                   train.style.left = timePassed / 5 + "px";
+
+                   if (timePassed > 5800) clearInterval(timer)  
+               },20);
+            }
+
+        </script>
+    
+   </body>
+   </html>

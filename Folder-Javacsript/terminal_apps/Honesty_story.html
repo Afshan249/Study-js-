@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Honesty Story</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      background: #c8f4ff;
+    }
+
+    .app {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      background: linear-gradient(to bottom, #87ceeb, #e8f5e9);
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 1s ease;
+      overflow: hidden;
+    }
+
+    .scene.active {
+      opacity: 1;
+    }
+
+    .sky {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, #64b5f6, #bbdefb 60%, #c8e6c9);
+    }
+
+    .sun {
+      position: absolute;
+      top: 50px;
+      left: 70px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #fff59d, #ffeb3b, #fbc02d);
+      box-shadow: 0 0 60px rgba(255, 235, 59, 0.7);
+      animation: glow 3s infinite ease-in-out;
+    }
+
+    @keyframes glow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .ground {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 34%;
+      background: linear-gradient(to top, #4caf50, #81c784);
+    }
+
+    .tree {
+      position: absolute;
+      width: 70px;
+      height: 140px;
+      animation: sway 3s ease-in-out infinite;
+    }
+
+    @keyframes sway {
+      0%, 100% { transform: rotate(0deg) translateY(0); }
+      50% { transform: rotate(1deg) translateY(-4px); }
+    }
+
+    .trunk {
+      position: absolute;
+      left: 28px;
+      bottom: 0;
+      width: 14px;
+      height: 60px;
+      background: #795548;
+      border-radius: 5px;
+    }
+
+    .crown {
+      position: absolute;
+      left: 5px;
+      bottom: 35px;
+      width: 60px;
+      height: 60px;
+      background: #2e7d32;
+      border-radius: 50%;
+      box-shadow: 18px 4px 0 #388e3c, -16px 8px 0 #1b5e20;
+    }
+
+    .house {
+      position: absolute;
+      right: 80px;
+      bottom: 18%;
+      width: 160px;
+      height: 120px;
+      background: #ffcc80;
+      border: 4px solid #8d6e63;
+      border-radius: 10px;
+    }
+
+    .house::before {
+      content: "";
+      position: absolute;
+      top: -70px;
+      left: 16px;
+      width: 0;
+      height: 0;
+      border-left: 64px solid transparent;
+      border-right: 64px solid transparent;
+      border-bottom: 70px solid #c62828;
+    }
+
+    .door {
+      position: absolute;
+      bottom: 0;
+      left: 58px;
+      width: 40px;
+      height: 70px;
+      background: #6d4c41;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .window {
+      position: absolute;
+      top: 26px;
+      width: 28px;
+      height: 28px;
+      background: #b3e5fc;
+      border: 3px solid #6d4c41;
+      border-radius: 6px;
+    }
+
+    .window.left { left: 18px; }
+    .window.right { right: 18px; }
+
+    .road {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 18%;
+      background: #8d6e63;
+    }
+
+    .boy {
+      position: absolute;
+      bottom: 20%;
+      left: 18%;
+      width: 120px;
+      height: 160px;
+      animation: bob 2.5s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .head {
+      position: absolute;
+      top: 0;
+      left: 38px;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #ffccbc;
+    }
+
+    .eye {
+      position: absolute;
+      top: 15px;
+      width: 6px;
+      height: 6px;
+      background: #263238;
+      border-radius: 50%;
+    }
+
+    .eye.left { left: 46px; }
+    .eye.right { left: 58px; }
+
+    .smile {
+      position: absolute;
+      top: 25px;
+      left: 49px;
+      width: 14px;
+      height: 8px;
+      border-bottom: 3px solid #8d4a3a;
+      border-radius: 50%;
+    }
+
+    .shirt {
+      position: absolute;
+      top: 42px;
+      left: 26px;
+      width: 58px;
+      height: 64px;
+      background: linear-gradient(to bottom, #ff7043, #fb8c00);
+      border-radius: 12px;
+    }
+
+    .arm {
+      position: absolute;
+      top: 50px;
+      width: 12px;
+      height: 48px;
+      background: #ffccbc;
+      border-radius: 8px;
+    }
+
+    .arm.left { left: 18px; transform: rotate(10deg); }
+    .arm.right { left: 88px; transform: rotate(-10deg); }
+
+    .leg {
+      position: absolute;
+      bottom: 0;
+      width: 12px;
+      height: 42px;
+      background: #1565c0;
+      border-radius: 5px;
+    }
+
+    .leg.left { left: 40px; }
+    .leg.right { left: 62px; }
+
+    .money {
+      position: absolute;
+      width: 28px;
+      height: 18px;
+      background: gold;
+      border: 2px solid #b8860b;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #5d4037;
+      animation: floatUp 3s infinite ease-in-out;
+    }
+
+    @keyframes floatUp {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .oldman {
+      position: absolute;
+      bottom: 20%;
+      right: 18%;
+      width: 120px;
+      height: 160px;
+      animation: bob 2.8s ease-in-out infinite;
+    }
+
+    .oldman .head {
+      left: 38px;
+      background: #ffe0bd;
+    }
+
+    .oldman .beard {
+      position: absolute;
+      top: 22px;
+      left: 34px;
+      width: 48px;
+      height: 26px;
+      background: #fff;
+      border-radius: 0 0 20px 20px;
+    }
+
+    .oldman .shirt {
+      background: linear-gradient(to bottom, #42a5f5, #1e88e5);
+    }
+
+    .bird {
+      position: absolute;
+      top: 90px;
+      width: 18px;
+      height: 10px;
+      border-top: 3px solid #333;
+      border-radius: 50%;
+      animation: fly 8s linear infinite;
+    }
+
+    @keyframes fly {
+      0% { left: -40px; }
+      100% { left: 110%; }
+    }
+
+    .ui {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+      background: rgba(255,255,255,0.9);
+      padding: 12px 16px;
+      border-radius: 14px;
+      color: #1b5e20;
+      font-size: 18px;
+      line-height: 1.6;
+      min-width: 220px;
+      z-index: 5;
+    }
+
+    .title {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.9);
+      color: #1b5e20;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-size: 28px;
+      font-weight: bold;
+      z-index: 5;
+    }
+
+    .story {
+      position: absolute;
+      left: 50%;
+      bottom: 6%;
+      transform: translateX(-50%);
+      width: min(920px, 92vw);
+      background: rgba(0,0,0,0.65);
+      color: white;
+      padding: 16px 22px;
+      border-radius: 16px;
+      font-size: 24px;
+      line-height: 1.5;
+      z-index: 5;
+    }
+
+    .moral {
+      position: absolute;
+      top: 85px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.95);
+      color: #1b5e20;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: bold;
+      opacity: 0;
+      transition: 1s ease;
+      z-index: 5;
+    }
+
+    .moral.show {
+      opacity: 1;
+    }
+
+    .start {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      z-index: 10;
+    }
+
+    button {
+      border: none;
+      background: #1b5e20;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="title">Honesty Story</div>
+    <div class="start"><button onclick="startStory()">Start Story</button></div>
+    <div class="ui" id="ui">Mood: Happy<br>Lesson: Honesty</div>
+    <div class="moral" id="moral">Moral: Honesty is the best policy.</div>
+
+    <div class="scene active" id="scene1">
+      <div class="sky"></div>
+      <div class="sun"></div>
+      <div class="tree" style="left: 120px; bottom: 18%;">
+        <div class="crown"></div>
+        <div class="trunk"></div>
+      </div>
+      <div class="tree" style="left: 240px; bottom: 18%;">
+        <div class="crown"></div>
+        <div class="trunk"></div>
+      </div>
+      <div class="road"></div>
+      <div class="boy">
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="shirt"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="story" id="storyText">A happy boy named Ali lived in a small village.</div>
+    </div>
+
+    <div class="scene" id="scene2">
+      <div class="sky"></div>
+      <div class="sun"></div>
+      <div class="tree" style="left: 150px; bottom: 18%;">
+        <div class="crown"></div>
+        <div class="trunk"></div>
+      </div>
+      <div class="road"></div>
+      <div class="boy" style="left: 18%;">
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="shirt"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="money" style="left: 52%; top: 58%;">$</div>
+      <div class="story">One day, he found some money on the road.</div>
+    </div>
+
+    <div class="scene" id="scene3">
+      <div class="sky"></div>
+      <div class="sun"></div>
+      <div class="road"></div>
+      <div class="boy" style="left: 18%;">
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="shirt"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="oldman">
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="beard"></div>
+        <div class="shirt"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="story">Ali was honest, so he returned the money to the old man.</div>
+    </div>
+
+    <div class="scene" id="scene4">
+      <div class="sky"></div>
+      <div class="sun"></div>
+      <div class="ground"></div>
+      <div class="road"></div>
+      <div class="boy" style="left: 18%;">
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="shirt"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="oldman" style="right: 18%;">
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="beard"></div>
+        <div class="shirt"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="story">The old man smiled and thanked him with gifts and blessings.</div>
+    </div>
+
+    <div class="scene" id="scene5">
+      <div class="sky"></div>
+      <div class="sun"></div>
+      <div class="ground"></div>
+      <div class="road"></div>
+      <div class="boy" style="left: 18%;">
+        <div class="head">
+          <div class="eye left"></div>
+          <div class="eye right"></div>
+          <div class="smile"></div>
+        </div>
+        <div class="shirt"></div>
+        <div class="arm left"></div>
+        <div class="arm right"></div>
+        <div class="leg left"></div>
+        <div class="leg right"></div>
+      </div>
+      <div class="moral show">Honesty is the best policy.</div>
+      <div class="story">Ali became known in the village as a good and honest boy.</div>
+    </div>
+  </div>
+
+  <script>
+    const scenes = [...document.querySelectorAll(".scene")];
+    const storyText = document.getElementById("storyText");
+    const moral = document.getElementById("moral");
+    const ui = document.getElementById("ui");
+    let current = 0;
+    let timer;
+
+    const texts = [
+      "A happy boy named Ali lived in a small village.",
+      "One day, he found some money on the road.",
+      "Ali was honest, so he returned the money to the old man.",
+      "The old man smiled and thanked him with gifts and blessings.",
+      "Ali became known in the village as a good and honest boy."
+    ];
+
+    function showScene(i) {
+      scenes.forEach((s, idx) => s.classList.toggle("active", idx === i));
+      storyText.textContent = texts[i];
+      ui.innerHTML = i < 2 ? "Mood: Happy<br>Lesson: Honesty" : "Mood: Proud<br>Lesson: Honesty";
+      if (i === 4) moral.classList.add("show");
+    }
+
+    function nextScene() {
+      current++;
+      if (current < scenes.length) {
+        showScene(current);
+        timer = setTimeout(nextScene, 4500);
+      }
+    }
+
+    function startStory() {
+      clearTimeout(timer);
+      current = 0;
+      moral.classList.remove("show");
+      showScene(0);
+      timer = setTimeout(nextScene, 4000);
+    }
+  </script>
+</body>
+</html>
