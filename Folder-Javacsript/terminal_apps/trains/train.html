@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Train Run</title>
+   <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+   <div class="background">
+
+      <div class="road">
+         <img id="train" src="https://js.cx/clipart/train.gif">
+         <div class="rails-1"></div>
+         <div class="spaces" id="spaces">
+            
+         </div>
+         <div class="rails-2"></div>
+      </div>
+   </div>
+   <script>
+
+      const spaces = document.getElementById("spaces")
+
+      for (let s = 0; s <= 20; s++) {
+         const gap = document.createElement("div")
+         gap.textContent = "/"
+         spaces.appendChild(gap)
+      }
+
+      train.onclick = function () {
+         let start = Date.now()
+         let timer = setInterval(function () {
+            let timePassed = Date.now() - start
+            train.style.left = timePassed / 5 + "px";
+
+            if (timePassed > 5800) clearInterval(timer)
+         }, 20);
+      }
+
+   </script>
+
+</body>
+
+</html>
